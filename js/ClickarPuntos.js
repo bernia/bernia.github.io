@@ -50,7 +50,7 @@ var VSHADER_SOURCE =
     var coordenadas = gl.getAttribLocation( gl.program, 'posicion');
 
     //Registrar el evento
-    canvas.onmousedown = functon(evento) { click( evento, gl, canvas, coordenadas); };
+    canvas.onmousedown = function(evento) { click( evento, gl, canvas, coordenadas); };
 }
 
 var puntos = []; // array de puntos
