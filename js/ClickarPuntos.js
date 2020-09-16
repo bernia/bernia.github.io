@@ -75,7 +75,28 @@ function click (evento, gl, canvas, coordenadas)
     // y los dibuja uno a uno
 
     for (var i = 0; i < puntos.length; i += 2){
+        // Manera 1 de dibujar - no conviene
+        /*
         gl.vertexAttrib3f(coordenadas, puntos[i],puntos[i+1],0.0 );
         gl.drawArrays(gl.POINTS,0,1);
+        */
+       
+        // Dibujar usando buffer object
+        // Crear un BO
+        var bufferVertices = gl.createBuffer();
+        // Activar el BO como un ARRAY simple
+        gl.bindBuffer( gl.ARRAY_BUFFER, bufferVertices );
+        // Escribir los datos en el BO
+        // Para ello primero instanciamos un Float32Array
+        var puntos32 = new Float32Array(puntos);
+        gl.bufferData (gl.ARRAY_BUFFER, puntos32, gl.STATIC_DRAW);
+        // Asignar el Buffer Object al atributo elegido
+        gl.vertexAttribPointer( coordenadas, 3, gl.FLOAT, false, 0,0);
+        // Activar el atributo
+        gl.enableVertexAttribArray( coordenadas );
+        // Dibujar todos de una
+        gl.drawArrays( gl.POINTS, 0, puntos.length/3);
+
+
     }
 }
