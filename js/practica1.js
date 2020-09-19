@@ -7,17 +7,28 @@
 
 // SHADER VERTICES
 var VSHADER_SOURCE =
-'attribute vec4 posicion;       \n' +
-'void main(){                   \n' +
-'gl_Position = posicion;        \n' +
-'gl_PointSize = 10.0;           \n' +
-'}                              \n';
+"precision mediump float;                                       \n" +
+
+"attribute vec4 posicion;                                       \n" +
+"varying vec4 color;                                            \n" +
+
+"void main() {                                                  \n" +
+" gl_Position = posicion;                                       \n" +
+" float i = sqrt(pow(posicion[0], 2.0)+pow(posicion[1], 2.0));  \n" +
+" color = vec4(1.0-i, 1.0-i, 1.0-i, 1.0);                       \n" +
+" gl_PointSize = 10.0;                                          \n" +
+"}                                                              \n";
 
 // SHADER FRAGMENTOS
 var FSHADER_SOURCE =
-'void main(){                   \n' +
-'gl_FragColor = vec4(1.0,0.0,0.0,1.0);        \n' +
-'}                              \n';
+"precision mediump float; \n" +
+
+"varying vec4 color;      \n" +
+
+"void main() {            \n" +
+" gl_FragColor = color;   \n" +
+"}                        \n";
+
  
 function main() {
     // Recuperar el canvas (el lienzo)
@@ -89,6 +100,7 @@ function click (evento, gl, canvas, coordenadas)
     
     // Dibujar todos de una
     gl.drawArrays( gl.POINTS, 0, puntos.length/3);
+    gl.drawArrays( gl.LINE_STRIP,0,puntos.length/3);
 
     // Inserta las coordenadas de los puntos como atributos
     // y los dibuja uno a uno
@@ -96,7 +108,7 @@ function click (evento, gl, canvas, coordenadas)
     for (var i = 0; i < puntos.length; i += 2){
         // Manera 1 de dibujar - no conviene
         gl.vertexAttrib3f(coordenadas, puntos[i],puntos[i+1],0.0 );
-        gl.drawArrays(gl.POINTS,0,1); 
+        gl.drawArrays(gl.POINTS,0,1);   
 
     }*/
 }
