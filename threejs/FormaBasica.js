@@ -75,6 +75,7 @@ function loadScene() {
                     obj.position.set(0,1,0);
                     cubo.add(obj)
                 });
+    // Para descargar modelos: sketchfab, clara.io
 
     // Organizacion de la escena
     esferaCubo.add(cubo);
