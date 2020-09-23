@@ -23,7 +23,7 @@ function init() {
     // Configurar el motor de render y canvas
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth,window.innerHeight);
-    renderer.setClearColor( new THREE.Color(0x0000AA));
+    renderer.setClearColor( new THREE.Color(0xFFFFFF));
     // Metiendo un documento dentro del contenedor que hemos creado
     document.getElementById("container").appendChild(renderer.domElement);
 
@@ -48,54 +48,68 @@ function loadScene() {
     
     // Geometrias
     //var geocubo = new THREE.BoxGeometry(2,2,2);
-    //var geoesfera = new THREE.SphereGeometry(1,30,30);
+    
 
     var geobase = new THREE.CylinderGeometry(50,50,15,10);
     var geosuelo = new THREE.PlaneGeometry( 1000, 1000, 10,10);
     var geoesparrago = new THREE.CylinderGeometry(20,20,18,10);
     var geoeje = new THREE.BoxGeometry(18,120,12);
+    var georotula = new THREE.SphereGeometry(20,10,10);
+    var geodisco = new THREE.CylinderGeometry(22,22,6,10);
 
 
     // Objetos
-    var base = new THREE.Mesh( geobase, material );
+    var cil_base = new THREE.Mesh( geobase, material );
+
     var suelo = new THREE.Mesh( geosuelo, material );
     suelo.rotation.x = -Math.PI/2;
+
     var esparrago = new THREE.Mesh(geoesparrago, material);
     esparrago.rotation.x = Math.PI/2;
     esparrago.position.y = 35;
+
     var eje = new THREE.Mesh( geoeje, material);
     eje.position.y = 95;
 
-    // En 3js el orden de las transformaciones no importa 
-    // Importa el orden establecido de la libreria: 1- Escalado, 2- Rotacion, 3- Traslacion (TRS)
-    //cubo.position.x = -1;
-    //cubo.rotation.y = Math.PI/4;
+    var rotula = new THREE.Mesh( georotula, material);
+    rotula.position.y = 155;
 
-    //var esfera = new THREE.Mesh( geoesfera, material);
-    //esfera.position.x = 1;
-    
-    // Objeto contenedor
-    //esferaCubo = new THREE.Object3D();
-    //esferaCubo.position.y = 0.5;
-    //esferaCubo.rotation.y = angulo;
+    var disco = new THREE.Mesh( geodisco, material);
+    disco.position.y = 155;
 
-    // Modelo externo
-    /*var loader = new THREE.ObjectLoader();
-    loader.load('models/soldado/soldado.json',
-                function(obj) {
-                    obj.position.set(0,1,0);
-                    cubo.add(obj)
-                });*/
-    // Para descargar modelos: sketchfab, clara.io
+    var nervios;
+
+    var pinzaIz;
+
+    var pinzaDe;
+
+    // Objetos contenedor
+    robot = new THREE.Object3D();
+    base = new THREE.Object3D();
+    brazo = new THREE.Object3D();
+    antebrazo = new THREE.Object3D();
+    mano = new THREE.Object3D();    
 
     // Organizacion de la escena
+    robot.add(base);
+
+    base.add(cil_base)
+    base.add(brazo)
+    
+    brazo.add(esparrago);
+    brazo.add(eje);
+    brazo.add(rotula);
+    brazo.add(antebrazo);
+
+    antebrazo.add(disco);
+    //antebrazo.add(nervios);
+    //antebrazo.add(mano);
+
+    //mano.add(pinzaIz);
+    //mano.add(pinzaDe);
+
+    scene.add(robot);
     scene.add(suelo);
-    scene.add(base);
-    scene.add(esparrago);
-    scene.add(eje);
-    //esferaCubo.add(cubo);
-    //esferaCubo.add(esfera);
-    //scene.add(esferaCubo);
 
     // Dibujar los ejes
     scene.add( new THREE.AxisHelper(3));
