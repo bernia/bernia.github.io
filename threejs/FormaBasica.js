@@ -69,17 +69,16 @@ function loadScene() {
     esferaCubo.rotation.y = angulo;
 
     // Modelo externo
-    var loader = new THREE.ObjectLoader();
+    /*var loader = new THREE.ObjectLoader();
     loader.load('models/soldado/soldado.json',
                 function(obj) {
                     obj.position.set(0,1,0);
                     cubo.add(obj)
-                });
+                });*/
     // Para descargar modelos: sketchfab, clara.io
 
     // Organizacion de la escena
     esferaCubo.add(cubo);
-    cubo.add()
     esferaCubo.add(esfera);
     scene.add(esferaCubo);
 
