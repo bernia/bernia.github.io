@@ -36,7 +36,7 @@ function init() {
     camera = new THREE.PerspectiveCamera(50, ar, 0.1, 2000);
     scene.add(camera); // El valor x defecto de la camara es la pos (0,0,0) mirando a -Z
     // Situamos la camara
-    camera.position.set(100,200,450);
+    camera.position.set(300,400,300);
     camera.lookAt( new THREE.Vector3(0,0,0) );
 }
 
@@ -56,7 +56,9 @@ function loadScene() {
     var geoeje = new THREE.BoxGeometry(18,120,12);
     var georotula = new THREE.SphereGeometry(20,10,10);
     var geodisco = new THREE.CylinderGeometry(22,22,6,10);
-
+    var geonervios = new THREE.BoxGeometry(4,80,4);
+    var geomano = new THREE.CylinderGeometry(15,15,40,10);
+    var geopinza = new THREE.Geometry();
 
     // Objetos
     var cil_base = new THREE.Mesh( geobase, material );
@@ -77,7 +79,29 @@ function loadScene() {
     var disco = new THREE.Mesh( geodisco, material);
     disco.position.y = 155;
 
-    var nervios;
+    var nervio1 = new THREE.Mesh( geonervios, material);
+    nervio1.position.y = 192; // 155 + 80/2 - 6/2
+    nervio1.position.x = 8;
+    nervio1.position.z = 8;
+
+    var nervio2 = new THREE.Mesh( geonervios, material);
+    nervio2.position.y = 192;
+    nervio2.position.x = -8;
+    nervio2.position.z = 8;
+    
+    var nervio3 = new THREE.Mesh( geonervios, material);
+    nervio3.position.y = 192;
+    nervio3.position.x = -8;
+    nervio3.position.z = -8;
+    
+    var nervio4 = new THREE.Mesh( geonervios, material);
+    nervio4.position.y = 192;
+    nervio4.position.x = 8;
+    nervio4.position.z = -8;
+
+    var mano = new THREE.Mesh( geomano, material);
+    mano.rotation.x = Math.PI/2;
+    mano.position.y = 232;
 
     var pinzaIz;
 
@@ -88,7 +112,7 @@ function loadScene() {
     base = new THREE.Object3D();
     brazo = new THREE.Object3D();
     antebrazo = new THREE.Object3D();
-    mano = new THREE.Object3D();    
+    //mano = new THREE.Object3D();    
 
     // Organizacion de la escena
     robot.add(base);
@@ -102,8 +126,11 @@ function loadScene() {
     brazo.add(antebrazo);
 
     antebrazo.add(disco);
-    //antebrazo.add(nervios);
-    //antebrazo.add(mano);
+    antebrazo.add(nervio1);
+    antebrazo.add(nervio2);
+    antebrazo.add(nervio3);
+    antebrazo.add(nervio4);
+    antebrazo.add(mano);
 
     //mano.add(pinzaIz);
     //mano.add(pinzaDe);
