@@ -10,20 +10,47 @@
 // Variables de consenso
 // Motor de render, escena y camara
 var renderer, scene, camera;
+var planta;
 
 // Otras globales
 var robot, base, brazo, antebrazo, mano, angulo = 0;
+var l = b = -100;
+var r = t = -l;
+var cameraControls;
 
 // Acciones - se llevan a cargo cuando se carga el body -> Script
 init();
 loadScene();
 render();
 
+function setCameras(ar) {
+    // Construye las camaras Planta, Alzado, Perfil y Perspectiva
+    var origen = new THREE.Vector3(0,0,0);
+    var camaraOrtografica = new THREE.OrthographicCamera(l, r, t, b, -100, 350);
+
+    // Camaras ortograficas
+    planta = camaraOrtografica.clone();
+    planta.position.set(0,300,0);
+    planta.lookAt(origen);
+    planta.up.set(new THREE.Vector3(0,0,-1));
+
+    // Camara perspectiva
+    camera = new THREE.PerspectiveCamera(50, ar, 0.1, 1000);
+    camera.position.set(175,260,175);
+    camera.lookAt(new THREE.Vector3(0,150,0));
+
+    scene.add(planta);
+    scene.add(camera);
+
+
+}
+
 function init() {
     // Configurar el motor de render y canvas
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth,window.innerHeight);
     renderer.setClearColor( new THREE.Color(0xFFFFFF));
+    renderer.autoClear = false
     // Metiendo un documento dentro del contenedor que hemos creado
     document.getElementById("container").appendChild(renderer.domElement);
 
@@ -31,13 +58,16 @@ function init() {
     scene = new THREE.Scene();
 
     // Camara
-    // Razon de aspecto
     var ar = window.innerWidth / window.innerHeight;
-    camera = new THREE.PerspectiveCamera(50, ar, 0.1, 2000);
-    scene.add(camera); // El valor x defecto de la camara es la pos (0,0,0) mirando a -Z
-    // Situamos la camara
-    camera.position.set(300,250,300);
-    camera.lookAt( new THREE.Vector3(0,150,0) );
+    setCameras(ar);
+
+    // Controlador de camara
+    cameraControls = new THREE.OrbitControls( camera, renderer.domElement );
+    cameraControls.target.set(0,0,0);
+    cameraControls.noKeys = true;
+
+    // Captura de eventos
+    window.addEventListener('resize',updateAspectRatio);
 }
 
 function loadScene() {
@@ -204,9 +234,36 @@ function update() {
     //esferaCubo.rotation.y = angulo;
 }
 
+function updateAspectRatio() {
+    // Renueva la relacion de aspecto de la camara
+    // Para adaptarla a la a.r. del nuevo marco
+
+    //Ajustar el tamaño de canvas
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    var ar = window.innerWidth / window.innerHeight;
+
+    //Camara perspectiva
+    camera.aspect = ar;
+
+    camera.updateProjectionMatrix();
+}
+
 function render() {
     // Construir el frame y mostrarlo
     requestAnimationFrame( render );
     update();
+
+    renderer.clear()
+    
+    var size_planta;
+    if (window.innerWidth > window.innerHeight) {
+        size_planta = window.innerHeight / 4;
+    } else {
+        size_planta = window.innerWidth / 4;
+    }
+    renderer.setViewport(0, 0, size_planta, size_planta);
+    renderer.render( scene, planta );
+
+    renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.render( scene, camera );
 }

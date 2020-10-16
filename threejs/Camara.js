@@ -179,6 +179,7 @@ function rotate(event) {
     var derecha = false, abajo = false;
     var cam = null;
 
+    
     //Cuadrante para la x,y?
     if (x > window.innerWidth / 2) {
         x -= window.innerWidth/2;
@@ -196,7 +197,7 @@ function rotate(event) {
     else
         if ( abajo ) cam = planta;
         else cam = alzado;
-
+    
     // Transformacion a cuadrado de 2x2
     x = (2 * x / window.innerWidth ) * 2 - 1;
     y = -(2 * y / window.innerHeight ) * 2 + 1;
