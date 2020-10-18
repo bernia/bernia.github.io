@@ -50,14 +50,14 @@ function loadScene() {
     //var geocubo = new THREE.BoxGeometry(2,2,2);
     
 
-    var geobase = new THREE.CylinderGeometry(50,50,15,30);
+    var geobase = new THREE.CylinderGeometry(50,50,15,50);
     var geosuelo = new THREE.PlaneGeometry( 1000, 1000, 10,10);
     var geoesparrago = new THREE.CylinderGeometry(20,20,18,30);
     var geoeje = new THREE.BoxGeometry(18,120,12);
-    var georotula = new THREE.SphereGeometry(20,10,20);
-    var geodisco = new THREE.CylinderGeometry(22,22,6,10);
+    var georotula = new THREE.SphereGeometry(20,10,30);
+    var geodisco = new THREE.CylinderGeometry(22,22,6,40);
     var geonervios = new THREE.BoxGeometry(4,80,4);
-    var geomano = new THREE.CylinderGeometry(15,15,40,25);
+    var geomano = new THREE.CylinderGeometry(15,15,40,30);
 
     var geopinza = new THREE.Geometry();
     geopinza.vertices.push(
@@ -112,6 +112,7 @@ function loadScene() {
 
     // Objetos
     var cil_base = new THREE.Mesh( geobase, material );
+    cil_base.position.y = 7.5;
 
     var suelo = new THREE.Mesh( geosuelo, material );
     suelo.rotation.x = -Math.PI/2;
@@ -127,47 +128,48 @@ function loadScene() {
     rotula.position.y = 127.5;
 
     var disco = new THREE.Mesh( geodisco, material);
-    disco.position.y = 127.5;
+    disco.position.y = 0;
 
     var nervio1 = new THREE.Mesh( geonervios, material);
-    nervio1.position.y = 164.5; // 127.5 + 80/2 - 6/2
+    nervio1.position.y = 40; // 127.5 + 80/2
     nervio1.position.x = 8;
     nervio1.position.z = 8;
 
     var nervio2 = new THREE.Mesh( geonervios, material);
-    nervio2.position.y = 164.5;
+    nervio2.position.y = 40;
     nervio2.position.x = -8;
     nervio2.position.z = 8;
     
     var nervio3 = new THREE.Mesh( geonervios, material);
-    nervio3.position.y = 164.5;
+    nervio3.position.y = 40;
     nervio3.position.x = -8;
     nervio3.position.z = -8;
     
     var nervio4 = new THREE.Mesh( geonervios, material);
-    nervio4.position.y = 164.5;
+    nervio4.position.y = 40;
     nervio4.position.x = 8;
     nervio4.position.z = -8;
 
     var cil_mano = new THREE.Mesh( geomano, material);
     cil_mano.rotation.x = Math.PI/2;
-    cil_mano.position.y = 204.5;
+    //cil_mano.position.y = 207.5;
 
     var pinzaDe = new THREE.Mesh( geopinza, material);
-    pinzaDe.position.y = 194.5;
-    pinzaDe.position.z = 14;
+    pinzaDe.position.y = -10;
+    pinzaDe.position.z = 7.5;
 
     var pinzaIz = new THREE.Mesh( geopinza, material);
     pinzaIz.rotation.x = Math.PI;
-    pinzaIz.position.y = 214.5;
-    pinzaIz.position.z = -14;
+    pinzaIz.position.y = 10;
+    pinzaIz.position.z = -7.5;
 
     // Objetos contenedor
     robot = new THREE.Object3D();
     base = new THREE.Object3D();
     brazo = new THREE.Object3D();
     antebrazo = new THREE.Object3D();
-    mano = new THREE.Object3D();    
+    mano = new THREE.Object3D();
+    pinzas = new THREE.Object3D();
 
     // Organizacion de la escena
     robot.add(base);
@@ -186,16 +188,20 @@ function loadScene() {
     antebrazo.add(nervio3);
     antebrazo.add(nervio4);
     antebrazo.add(mano);
+    antebrazo.position.y = 127.5;
 
     mano.add(cil_mano);
-    mano.add(pinzaDe);
-    mano.add(pinzaIz);
+    pinzas.add(pinzaDe);
+    pinzas.add(pinzaIz);
+    pinzas.position.x = 8;
+    mano.add(pinzas);
+    mano.position.y = 80;
     
     scene.add(robot);
     scene.add(suelo);
 
     // Dibujar los ejes
-    scene.add( new THREE.AxisHelper(3));
+    //scene.add( new THREE.AxisHelper(3));
 }
 
 function update() {

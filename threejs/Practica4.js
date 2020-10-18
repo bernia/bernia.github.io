@@ -11,16 +11,24 @@
 // Motor de render, escena y camara
 var renderer, scene, camera;
 var planta;
-
-// Otras globales
-var robot, base, brazo, antebrazo, mano, angulo = 0;
+// Objetos
+var robot, base, brazo, antebrazo, mano, pinzas, angulo = 0;
+// Variables camara orto
 var l = b = -100;
 var r = t = -l;
 var cameraControls;
+// Global GUI
+var effectController;
+// Interaccion teclado
+var updateFcts	= [];
+var lastTimeMsec= null
+var nowMsec = Date.now();
 
 // Acciones - se llevan a cargo cuando se carga el body -> Script
 init();
 loadScene();
+setupGui();
+keyboardControl();
 render();
 
 function setCameras(ar) {
@@ -45,6 +53,33 @@ function setCameras(ar) {
 
 }
 
+function keyboardControl() {
+    document.onkeydown = function(e) {
+      switch (e.keyCode) {
+        // left
+        case 37:
+        robot.position.z += 1;
+        planta.position.z += 1;
+        break;
+        // up
+        case 38:
+        robot.position.x -= 1;
+        planta.position.x -= 1;
+        break;
+        // right
+        case 39:
+        robot.position.z -= 1;
+        planta.position.z -= 1;
+        break;
+        // down
+        case 40:
+        robot.position.x += 1;
+        planta.position.x += 1;
+        break;
+      }
+    };
+  }
+
 function init() {
     // Configurar el motor de render y canvas
     renderer = new THREE.WebGLRenderer();
@@ -63,12 +98,13 @@ function init() {
 
     // Controlador de camara
     cameraControls = new THREE.OrbitControls( camera, renderer.domElement );
-    cameraControls.target.set(0,0,0);
+    cameraControls.target.set(0,130,0);
     cameraControls.noKeys = true;
 
     // Captura de eventos
     window.addEventListener('resize',updateAspectRatio);
 }
+
 
 function loadScene() {
     // Construir el grafo de escena
@@ -91,18 +127,18 @@ function loadScene() {
 
     var geopinza = new THREE.Geometry();
     geopinza.vertices.push(
-        new THREE.Vector3(  0,  0,  2),  // 0
-        new THREE.Vector3( 19,  0,  2),  // 1
-        new THREE.Vector3( 19, 20,  2),  // 2
-        new THREE.Vector3(  0, 20,  2),  // 3
-        new THREE.Vector3(  0,  0, -2),  // 4
-        new THREE.Vector3( 19,  0, -2),  // 5
-        new THREE.Vector3( 19, 20, -2),  // 6
-        new THREE.Vector3(  0, 20, -2),  // 7
-        new THREE.Vector3( 38, 3, 0),  // 8
-        new THREE.Vector3( 38, 3, -2),  // 9
-        new THREE.Vector3( 38,  17, -2),  // 10
-        new THREE.Vector3( 38,  17, 0),  // 11
+        new THREE.Vector3(  0,  0,  0),  // 0
+        new THREE.Vector3( 19,  0,  0),  // 1
+        new THREE.Vector3( 19, 20,  0),  // 2
+        new THREE.Vector3(  0, 20,  0),  // 3
+        new THREE.Vector3(  0,  0, -4),  // 4
+        new THREE.Vector3( 19,  0, -4),  // 5
+        new THREE.Vector3( 19, 20, -4),  // 6
+        new THREE.Vector3(  0, 20, -4),  // 7
+        new THREE.Vector3( 38, 3, -2),  // 8
+        new THREE.Vector3( 38, 3, -4),  // 9
+        new THREE.Vector3( 38,  17, -4),  // 10
+        new THREE.Vector3( 38,  17, -2),  // 11
       );
 
       geopinza.faces.push(
@@ -182,35 +218,41 @@ function loadScene() {
 
     var cil_mano = new THREE.Mesh( geomano, material);
     cil_mano.rotation.x = Math.PI/2;
-    //cil_mano.position.y = 207.5;
+    //cil_mano.position.y = 80;
 
     var pinzaDe = new THREE.Mesh( geopinza, material);
     pinzaDe.position.y = -10;
-    pinzaDe.position.z = 7.5;
+    pinzaDe.position.z = 4;
 
     var pinzaIz = new THREE.Mesh( geopinza, material);
     pinzaIz.rotation.x = Math.PI;
     pinzaIz.position.y = 10;
-    pinzaIz.position.z = -7.5;
+    pinzaIz.position.z = -4;
 
     // Objetos contenedor
     robot = new THREE.Object3D();
     base = new THREE.Object3D();
     brazo = new THREE.Object3D();
     antebrazo = new THREE.Object3D();
-    mano = new THREE.Object3D();
     pinzas = new THREE.Object3D();
+    mano = new THREE.Object3D();
+
+    pde = new THREE.Object3D();
+    pde.add(pinzaDe)
+    piz = new THREE.Object3D();
+    piz.add(pinzaIz);
+    piz.position.z = -7.5;
+    pde.position.z = 7.5;
 
     // Organizacion de la escena
-    robot.add(base);
+    pinzas.add(piz)
+    pinzas.add(pde);
+    pinzas.position.x = 8;
+    //pinzas.position.y = 80;
 
-    base.add(cil_base);
-    base.add(brazo);
-    
-    brazo.add(esparrago);
-    brazo.add(eje);
-    brazo.add(rotula);
-    brazo.add(antebrazo);
+    mano.add(pinzas);
+    mano.add(cil_mano);
+    mano.position.y = 80;
 
     antebrazo.add(disco);
     antebrazo.add(nervio1);
@@ -219,14 +261,17 @@ function loadScene() {
     antebrazo.add(nervio4);
     antebrazo.add(mano);
     antebrazo.position.y = 127.5;
-
-    mano.add(cil_mano);
-    pinzas.add(pinzaDe);
-    pinzas.add(pinzaIz);
-    pinzas.position.x = 8;
-    mano.add(pinzas);
-    mano.position.y = 80;
     
+    brazo.add(esparrago);
+    brazo.add(eje);
+    brazo.add(rotula);
+    brazo.add(antebrazo);
+
+    base.add(cil_base);
+    base.add(brazo);
+    
+    robot.add(base);
+
     scene.add(robot);
     scene.add(suelo);
 
@@ -234,10 +279,47 @@ function loadScene() {
     //scene.add( new THREE.AxisHelper(3));
 }
 
+function setupGui()
+{
+	// Definicion de los controles
+	effectController = {
+		giroBase: 0,
+        giroBrazo: 0,
+        giroAntebrazoY: 0,
+        giroAntebrazoZ: 0,
+        giroPinza: 0,
+        separacionPinza: 15,
+	};
+
+	// Creacion interfaz
+	var gui = new dat.GUI();
+
+	// Construccion del menu
+	var h = gui.addFolder("Control Robot");
+    var s_giroBase = h.add(effectController, "giroBase",-180,180,1).name("Giro Base");
+    var s_giroBrazo = h.add(effectController, "giroBrazo",-45,45,1).name("Giro Brazo");
+    var s_giroAntebrazoY = h.add(effectController, "giroAntebrazoY",-180,180,1).name("Giro Antebrazo Y");
+    var s_giroAntebrazoZ = h.add(effectController, "giroAntebrazoZ",-90,90,1).name("Giro Antebrazo Z");
+    var s_giroPinza = h.add(effectController, "giroPinza",-40,220,1).name("Giro Pinza");
+    var s_aperturaPinza = h.add(effectController, "giroPinza",0,15,0.5).name("Separación Pinza");
+	
+    s_giroBase.onChange( function(alpha){ base.rotation.y = alpha * Math.PI / 180; update();});
+    s_giroBrazo.onChange( function(alpha){ brazo.rotation.z = alpha * Math.PI / 180; });
+    s_giroAntebrazoY.onChange( function(alpha){ antebrazo.rotation.y = alpha * Math.PI / 180;});
+    s_giroAntebrazoZ.onChange( function(alpha){ antebrazo.rotation.z = alpha * Math.PI / 180;});
+    s_giroPinza.onChange (function(alpha){ 
+                            pinzas.rotation.z = alpha * Math.PI / 180;
+                            pinzas.position.x = 8 * Math.cos(alpha * Math.PI / 180);
+                            pinzas.position.y = 8 * Math.sin(alpha * Math.PI / 180);
+                            });
+    s_aperturaPinza.onChange( function(d){ 
+                                piz.position.z = -d/2;
+                                pde.position.z = d/2;
+                            });
+}
+
 function update() {
-    // Variacion de la escena entre frames
-    //angulo += Math.PI/100;
-    //esferaCubo.rotation.y = angulo;
+    
 }
 
 function updateAspectRatio() {
