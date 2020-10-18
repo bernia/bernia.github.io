@@ -45,7 +45,7 @@ function setCameras(ar) {
     // Camara perspectiva
     camera = new THREE.PerspectiveCamera(50, ar, 0.1, 1000);
     camera.position.set(175,260,175);
-    camera.lookAt(new THREE.Vector3(0,150,0));
+    camera.lookAt(new THREE.Vector3(0,0,0));
 
     scene.add(planta);
     scene.add(camera);
@@ -98,7 +98,7 @@ function init() {
 
     // Controlador de camara
     cameraControls = new THREE.OrbitControls( camera, renderer.domElement );
-    cameraControls.target.set(0,130,0);
+    cameraControls.target.set(0,0,0);
     cameraControls.noKeys = true;
 
     // Captura de eventos
