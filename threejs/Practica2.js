@@ -1,7 +1,5 @@
 /**
- * Seminario GPC #2. Forma Básica.
- * Dibujar formas básicas y un modelo importado
- * Muestra el bucle típico de inicialización, escena y render.
+ * Practica GPC #2.
  * 
  * Autor: Javier Martínez Bernia
  * MIARFID @ UPV

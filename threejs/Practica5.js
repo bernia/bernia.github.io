@@ -1,5 +1,5 @@
 /**
- * Practica GPC #4.
+ * Practica GPC #5.
  * 
  * Autor: Javier Martínez Bernia
  * MIARFID @ UPV
@@ -101,6 +101,26 @@ function init() {
 
     // Captura de eventos
     window.addEventListener('resize',updateAspectRatio);
+
+    // Luces
+	var luzAmbiente = new THREE.AmbientLight(0xFFFFFF, 0.2);
+	scene.add( luzAmbiente );
+
+	var luzPuntual = new THREE.PointLight(0xFFFFFF,0.5);
+	luzPuntual.position.set( -10, 10, -10 );
+	scene.add( luzPuntual );
+
+	var luzDireccional = new THREE.DirectionalLight(0xFFFFFF,0.5);
+	luzDireccional.position.set(-10,5,10 );
+	scene.add(luzDireccional);
+
+	var luzFocal = new THREE.SpotLight(0xFFFFFF,0.5);
+	luzFocal.position.set( 10,10,1 );
+	luzFocal.target.position.set(0,0,0);
+	luzFocal.angle = Math.PI/10;
+	luzFocal.penumbra = 0.2;
+	luzFocal.castShadow = true;
+	scene.add(luzFocal);
 }
 
 
@@ -109,7 +129,12 @@ function loadScene() {
     
     // Materiales
     var material = new THREE.MeshBasicMaterial( {color:'red',wireframe: true} );
-    
+    var materialMate = new THREE.MeshLambertMaterial( {color:'white', map: texturaCubo} ); // Color difuso - white
+    var matsuelo = new THREE.MeshLambertMaterial({ color:'white', map: texturaSuelo});
+    var materialBrillante = new THREE.MeshPhongMaterial( {  color:'white', 
+                                                            specular: 'white',
+                                                            shininess: 50, 
+                                                            envMap: mapaEntorno} );
     // Geometrias
     //var geocubo = new THREE.BoxGeometry(2,2,2);
     
