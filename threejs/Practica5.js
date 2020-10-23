@@ -41,7 +41,7 @@ function setCameras(ar) {
     planta.up.set(new THREE.Vector3(0,0,-1));
 
     // Camara perspectiva
-    camera = new THREE.PerspectiveCamera(50, ar, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(50, ar, 0.1, 4000);
     camera.position.set(175,260,175);
     camera.lookAt(new THREE.Vector3(0,0,0));
 
@@ -56,23 +56,23 @@ function keyboardControl() {
       switch (e.keyCode) {
         // left
         case 37:
-        robot.position.z += 1;
-        planta.position.z += 1;
+        robot.position.z += 2;
+        planta.position.z += 2;
         break;
         // up
         case 38:
-        robot.position.x -= 1;
-        planta.position.x -= 1;
+        robot.position.x -= 2;
+        planta.position.x -= 2;
         break;
         // right
         case 39:
-        robot.position.z -= 1;
-        planta.position.z -= 1;
+        robot.position.z -= 2;
+        planta.position.z -= 2;
         break;
         // down
         case 40:
-        robot.position.x += 1;
-        planta.position.x += 1;
+        robot.position.x += 2;
+        planta.position.x += 2;
         break;
       }
     };
@@ -84,6 +84,7 @@ function init() {
     renderer.setSize(window.innerWidth,window.innerHeight);
     renderer.setClearColor( new THREE.Color(0xFFFFFF));
     renderer.autoClear = false
+    renderer.shadowMap.enabled = true;
     // Metiendo un documento dentro del contenedor que hemos creado
     document.getElementById("container").appendChild(renderer.domElement);
 
@@ -103,44 +104,98 @@ function init() {
     window.addEventListener('resize',updateAspectRatio);
 
     // Luces
-	var luzAmbiente = new THREE.AmbientLight(0xFFFFFF, 0.2);
-	scene.add( luzAmbiente );
+    var luzAmbiente = new THREE.AmbientLight(0xFFFFFF, 0.3);
+    scene.add( luzAmbiente );
 
-	var luzPuntual = new THREE.PointLight(0xFFFFFF,0.5);
-	luzPuntual.position.set( -10, 10, -10 );
-	scene.add( luzPuntual );
+    var luzPuntual = new THREE.PointLight(0xFFFFFF,0.02);
+    luzPuntual.position.set( -150,200,-300 );
+    luzPuntual.castShadow = true;
+    scene.add( luzPuntual );
 
-	var luzDireccional = new THREE.DirectionalLight(0xFFFFFF,0.5);
-	luzDireccional.position.set(-10,5,10 );
-	scene.add(luzDireccional);
+    var luzDireccional = new THREE.DirectionalLight(0xFFFFFF,0.5);
+    luzDireccional.position.set(400,400,400 );
+    luzDireccional.castShadow = true;
+    scene.add(luzDireccional);
 
-	var luzFocal = new THREE.SpotLight(0xFFFFFF,0.5);
-	luzFocal.position.set( 10,10,1 );
-	luzFocal.target.position.set(0,0,0);
-	luzFocal.angle = Math.PI/10;
-	luzFocal.penumbra = 0.2;
-	luzFocal.castShadow = true;
-	scene.add(luzFocal);
+    var luzFocal = new THREE.SpotLight(0xFFFFFF,0.8);
+    luzFocal.position.set( 500,1202,0 );
+    scene.add(luzFocal.target);
+    luzFocal.target.position.set(200,0,0);
+    luzFocal.angle = Math.PI/6.5;
+    luzFocal.shadow.camera.near = 2;
+    luzFocal.shadow.camera.far = 4000;
+    luzFocal.shadow.camera.fov = 42;
+    luzFocal.penumbra = 0.2;
+    luzFocal.castShadow = true;
+    scene.add(luzFocal);
+
+    var shadowHelper = new THREE.CameraHelper( luzFocal.shadow.camera );
+    scene.add( shadowHelper );
+
 }
 
 
 function loadScene() {
+    // Texturas
+    var path = "./images/";
+
+    var texturaSuelo = new THREE.TextureLoader().load(path + 'pisometalico_1024.jpg');
+    texturaSuelo.magFilter = THREE.LinearFilter;
+    texturaSuelo.minFilter = THREE.LinearFilter;
+    texturaSuelo.repeat.set(3,3); //Las veces que se repite
+    texturaSuelo.wrapS = texturaSuelo.wrapT = THREE.MirroredRepeatWrapping; // La forma en la que se repite la textura en cada eje de la misma
+
+    var texturaMetal = new THREE.TextureLoader().load(path + 'metal_128x128.jpg');
+    texturaMetal.magFilter = THREE.LinearFilter;
+    texturaMetal.minFilter = THREE.LinearFilter;
+    texturaMetal.repeat.set(1,1);
+
+    var texturaPinzas = new THREE.TextureLoader().load(path + 'steel.jpg');
+    texturaPinzas.magFilter = THREE.LinearFilter;
+    texturaPinzas.minFilter = THREE.LinearFilter;
+
+    var texturaDorada = new THREE.TextureLoader().load(path + 'gold.jpg');
+    texturaDorada.magFilter = THREE.LinearFilter;
+    texturaDorada.minFilter = THREE.LinearFilter;
+    texturaDorada.repeat.set(2,10);
+    texturaDorada.wrapS = texturaSuelo.wrapT = THREE.MirroredRepeatWrapping;
+
+    paredes = [path + 'Lycksele3/posx.jpg', path + 'Lycksele3/negx.jpg',
+            path + 'Lycksele3/posy.jpg', path + 'Lycksele3/negy.jpg',
+            path + 'Lycksele3/posz.jpg', path + 'Lycksele3/negz.jpg'];
+    var mapaEntorno = new THREE.CubeTextureLoader().load(paredes);
+
     // Construir el grafo de escena
-    
     // Materiales
-    var material = new THREE.MeshBasicMaterial( {color:'red',wireframe: true} );
-    var materialMate = new THREE.MeshLambertMaterial( {color:'white', map: texturaCubo} ); // Color difuso - white
+    //var material = new THREE.MeshBasicMaterial( {color:'red'} );
+    var materialMate = new THREE.MeshLambertMaterial( {color:'white', map: texturaMetal} ); // Color difuso - white
+    var matpinza = new THREE.MeshLambertMaterial( {color:'white', map: texturaPinzas} );
     var matsuelo = new THREE.MeshLambertMaterial({ color:'white', map: texturaSuelo});
-    var materialBrillante = new THREE.MeshPhongMaterial( {  color:'white', 
+    var matdorado = new THREE.MeshLambertMaterial({ color:'white', map: texturaDorada});
+    var materialRotula = new THREE.MeshPhongMaterial( {  color:'yellow', 
                                                             specular: 'white',
                                                             shininess: 50, 
                                                             envMap: mapaEntorno} );
-    // Geometrias
-    //var geocubo = new THREE.BoxGeometry(2,2,2);
     
+    // Habitacion
+    var shader = THREE.ShaderLib.cube;
+    shader.uniforms.tCube.value = mapaEntorno;
+
+    var matparedes = new THREE.ShaderMaterial({
+        fragmentShader: shader.fragmentShader,
+		    vertexShader: shader.vertexShader,
+		    uniforms: shader.uniforms,
+		    depthWrite: false,
+		    side: THREE.BackSide
+    });
+
+    var habitacion = new THREE.Mesh( new THREE.CubeGeometry(1000,1000,1000), matparedes);
+    scene.add(habitacion);
+    
+    // Geometrias
 
     var geobase = new THREE.CylinderGeometry(50,50,15,50);
-    var geosuelo = new THREE.PlaneGeometry( 1000, 1000, 10,10);
+    var geosuelo = new THREE.PlaneGeometry( 1000, 1000, 1,1);
     var geoesparrago = new THREE.CylinderGeometry(20,20,18,30);
     var geoeje = new THREE.BoxGeometry(18,120,12);
     var georotula = new THREE.SphereGeometry(20,10,30);
@@ -175,11 +230,11 @@ function loadScene() {
         new THREE.Face3(8, 9, 10),
         new THREE.Face3(8, 10, 11),
         // D
-        new THREE.Face3(5, 9, 10),
-        new THREE.Face3(5, 10, 6),
+        new THREE.Face3(9, 5, 10),
+        new THREE.Face3(6, 10, 5),
         // E
-        new THREE.Face3(4, 5, 6),
-        new THREE.Face3(4, 6, 7),
+        new THREE.Face3(5, 4, 6),
+        new THREE.Face3(6, 4, 7),
         // F
         new THREE.Face3(4, 0, 3),
         new THREE.Face3(4, 3, 7),
@@ -200,57 +255,81 @@ function loadScene() {
       geopinza.computeFaceNormals();
 
     // Objetos
-    var cil_base = new THREE.Mesh( geobase, material );
+    var cil_base = new THREE.Mesh( geobase, materialMate );
     cil_base.position.y = 7.5;
+    cil_base.castShadow = true;
+    cil_base.receiveShadow = true;
 
-    var suelo = new THREE.Mesh( geosuelo, material );
+    var suelo = new THREE.Mesh( geosuelo, matsuelo );
     suelo.rotation.x = -Math.PI/2;
+    suelo.receiveShadow = true;
 
-    var esparrago = new THREE.Mesh(geoesparrago, material);
+    var esparrago = new THREE.Mesh(geoesparrago, materialMate);
     esparrago.rotation.x = Math.PI/2;
     esparrago.position.y = 7.5;
+    esparrago.castShadow = true;
+    esparrago.receiveShadow = true;
 
-    var eje = new THREE.Mesh( geoeje, material);
+    var eje = new THREE.Mesh( geoeje, materialMate);
     eje.position.y = 67.5;
+    eje.castShadow = true;
+    eje.receiveShadow = true;
 
-    var rotula = new THREE.Mesh( georotula, material);
+    var rotula = new THREE.Mesh( georotula, materialRotula);
     rotula.position.y = 127.5;
+    rotula.castShadow = true;
+    rotula.receiveShadow = true;
 
-    var disco = new THREE.Mesh( geodisco, material);
+    var disco = new THREE.Mesh( geodisco, matdorado);
     disco.position.y = 0;
+    disco.castShadow = true;
+    disco.receiveShadow = true;
 
-    var nervio1 = new THREE.Mesh( geonervios, material);
+    var nervio1 = new THREE.Mesh( geonervios, matdorado);
     nervio1.position.y = 40; // 127.5 + 80/2
     nervio1.position.x = 8;
     nervio1.position.z = 8;
+    nervio1.castShadow = true;
+    nervio1.receiveShadow = true;
 
-    var nervio2 = new THREE.Mesh( geonervios, material);
+    var nervio2 = new THREE.Mesh( geonervios, matdorado);
     nervio2.position.y = 40;
     nervio2.position.x = -8;
     nervio2.position.z = 8;
+    nervio2.castShadow = true;
+    nervio2.receiveShadow = true;
     
-    var nervio3 = new THREE.Mesh( geonervios, material);
+    var nervio3 = new THREE.Mesh( geonervios, matdorado);
     nervio3.position.y = 40;
     nervio3.position.x = -8;
     nervio3.position.z = -8;
+    nervio3.castShadow = true;
+    nervio3.receiveShadow = true;
     
-    var nervio4 = new THREE.Mesh( geonervios, material);
+    var nervio4 = new THREE.Mesh( geonervios, matdorado);
     nervio4.position.y = 40;
     nervio4.position.x = 8;
     nervio4.position.z = -8;
+    nervio4.castShadow = true;
+    nervio4.receiveShadow = true;
 
-    var cil_mano = new THREE.Mesh( geomano, material);
+    var cil_mano = new THREE.Mesh( geomano, matdorado);
     cil_mano.rotation.x = Math.PI/2;
-    //cil_mano.position.y = 80;
+    cil_mano.castShadow = true;
+    cil_mano.receiveShadow = true;
 
-    var pinzaDe = new THREE.Mesh( geopinza, material);
+    var pinzaDe = new THREE.Mesh( geopinza, matpinza);
     pinzaDe.position.y = -10;
     pinzaDe.position.z = 4;
+    pinzaDe.castShadow = true;
+    pinzaDe.receiveShadow = true;
 
-    var pinzaIz = new THREE.Mesh( geopinza, material);
+    var pinzaIz = new THREE.Mesh( geopinza, matpinza);
     pinzaIz.rotation.x = Math.PI;
     pinzaIz.position.y = 10;
     pinzaIz.position.z = -4;
+    pinzaIz.castShadow = true;
+    pinzaIz.receiveShadow = true;
 
     // Objetos contenedor
     robot = new THREE.Object3D();
