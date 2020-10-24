@@ -84,11 +84,11 @@ function loadScene() {
         new THREE.Face3(8, 9, 10),
         new THREE.Face3(8, 10, 11),
         // D
-        new THREE.Face3(5, 9, 10),
-        new THREE.Face3(5, 10, 6),
+        new THREE.Face3(9, 5, 10),
+        new THREE.Face3(6, 10, 5),
         // E
-        new THREE.Face3(4, 5, 6),
-        new THREE.Face3(4, 6, 7),
+        new THREE.Face3(5, 4, 6),
+        new THREE.Face3(6, 4, 7),
         // F
         new THREE.Face3(4, 0, 3),
         new THREE.Face3(4, 3, 7),
@@ -154,12 +154,12 @@ function loadScene() {
 
     var pinzaDe = new THREE.Mesh( geopinza, material);
     pinzaDe.position.y = -10;
-    pinzaDe.position.z = 7.5;
+    pinzaDe.position.z = 4;
 
     var pinzaIz = new THREE.Mesh( geopinza, material);
     pinzaIz.rotation.x = Math.PI;
     pinzaIz.position.y = 10;
-    pinzaIz.position.z = -7.5;
+    pinzaIz.position.z = -4;
 
     // Objetos contenedor
     robot = new THREE.Object3D();
@@ -169,16 +169,22 @@ function loadScene() {
     mano = new THREE.Object3D();
     pinzas = new THREE.Object3D();
 
-    // Organizacion de la escena
-    robot.add(base);
+    pde = new THREE.Object3D();
+    pde.add(pinzaDe)
+    piz = new THREE.Object3D();
+    piz.add(pinzaIz);
+    piz.position.z = -7.5;
+    pde.position.z = 7.5;
 
-    base.add(cil_base);
-    base.add(brazo);
-    
-    brazo.add(esparrago);
-    brazo.add(eje);
-    brazo.add(rotula);
-    brazo.add(antebrazo);
+    // Organizacion de la escena
+    pinzas.add(piz)
+    pinzas.add(pde);
+    pinzas.position.x = 8;
+    //pinzas.position.y = 80;
+
+    mano.add(pinzas);
+    mano.add(cil_mano);
+    mano.position.y = 80;
 
     antebrazo.add(disco);
     antebrazo.add(nervio1);
@@ -187,14 +193,17 @@ function loadScene() {
     antebrazo.add(nervio4);
     antebrazo.add(mano);
     antebrazo.position.y = 127.5;
-
-    mano.add(cil_mano);
-    pinzas.add(pinzaDe);
-    pinzas.add(pinzaIz);
-    pinzas.position.x = 8;
-    mano.add(pinzas);
-    mano.position.y = 80;
     
+    brazo.add(esparrago);
+    brazo.add(eje);
+    brazo.add(rotula);
+    brazo.add(antebrazo);
+
+    base.add(cil_base);
+    base.add(brazo);
+    
+    robot.add(base);
+
     scene.add(robot);
     scene.add(suelo);
 

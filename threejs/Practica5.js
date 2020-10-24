@@ -26,7 +26,6 @@ var nowMsec = Date.now();
 init();
 loadScene();
 setupGui();
-keyboardControl();
 render();
 
 function setCameras(ar) {
@@ -50,33 +49,6 @@ function setCameras(ar) {
 
 
 }
-
-function keyboardControl() {
-    document.onkeydown = function(e) {
-      switch (e.keyCode) {
-        // left
-        case 37:
-        robot.position.z += 2;
-        planta.position.z += 2;
-        break;
-        // up
-        case 38:
-        robot.position.x -= 2;
-        planta.position.x -= 2;
-        break;
-        // right
-        case 39:
-        robot.position.z -= 2;
-        planta.position.z -= 2;
-        break;
-        // down
-        case 40:
-        robot.position.x += 2;
-        planta.position.x += 2;
-        break;
-      }
-    };
-  }
 
 function init() {
     // Configurar el motor de render y canvas
@@ -103,34 +75,74 @@ function init() {
     // Captura de eventos
     window.addEventListener('resize',updateAspectRatio);
 
+    // Teclado
+    var keyboard	= new THREEx.KeyboardState(renderer.domElement);
+	  renderer.domElement.setAttribute("tabIndex", "0");
+	  renderer.domElement.focus();
+	
+	  updateFcts.push(function(delta, now){
+      if( keyboard.pressed('left') ){
+          robot.position.z += 1;
+          planta.position.z += 1;			
+      }else if( keyboard.pressed('right') ){
+          robot.position.z -= 1;
+          planta.position.z -= 1;
+      }
+      if( keyboard.pressed('down') ){
+          robot.position.x += 1;
+          planta.position.x += 1;
+      }else if( keyboard.pressed('up') ){
+          robot.position.x -= 1;
+          planta.position.x -= 1;
+      }
+    });
+
+    updateFcts.push(function(){
+      renderer.render( scene, camera );		
+    });
+
+    var lastTimeMsec= null
+	  requestAnimationFrame(function animate(nowMsec){
+      // keep looping
+      requestAnimationFrame( animate );
+      // measure time
+      lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+      var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+      lastTimeMsec	= nowMsec
+      // call each update function
+      updateFcts.forEach(function(updateFn){
+        updateFn(deltaMsec/1000, nowMsec/1000)
+      ;})
+	  });
+
     // Luces
     var luzAmbiente = new THREE.AmbientLight(0xFFFFFF, 0.3);
     scene.add( luzAmbiente );
 
-    var luzPuntual = new THREE.PointLight(0xFFFFFF,0.02);
-    luzPuntual.position.set( -150,200,-300 );
-    luzPuntual.castShadow = true;
+    var luzPuntual = new THREE.PointLight(0xFFFFFF,0.2);
+    luzPuntual.position.set( -150,490,-300 );
+    //luzPuntual.castShadow = true;
     scene.add( luzPuntual );
 
-    var luzDireccional = new THREE.DirectionalLight(0xFFFFFF,0.5);
+    var luzDireccional = new THREE.DirectionalLight(0xFFFFFF,0.3);
     luzDireccional.position.set(400,400,400 );
-    luzDireccional.castShadow = true;
+    //luzDireccional.castShadow = true;
     scene.add(luzDireccional);
 
-    var luzFocal = new THREE.SpotLight(0xFFFFFF,0.8);
-    luzFocal.position.set( 500,1202,0 );
+    var luzFocal = new THREE.SpotLight(0xFFFFFF,0.4);
+    luzFocal.position.set( 400,600,0 );
     scene.add(luzFocal.target);
     luzFocal.target.position.set(200,0,0);
-    luzFocal.angle = Math.PI/6.5;
+    luzFocal.angle = Math.PI/4.2;
     luzFocal.shadow.camera.near = 2;
-    luzFocal.shadow.camera.far = 4000;
+    luzFocal.shadow.camera.far = 1000;
     luzFocal.shadow.camera.fov = 42;
-    luzFocal.penumbra = 0.2;
+    luzFocal.penumbra = 0.1;
     luzFocal.castShadow = true;
     scene.add(luzFocal);
 
-    var shadowHelper = new THREE.CameraHelper( luzFocal.shadow.camera );
-    scene.add( shadowHelper );
+    //var shadowHelper = new THREE.CameraHelper( luzFocal.shadow.camera );
+    //scene.add( shadowHelper );
 
 }
 
@@ -139,7 +151,7 @@ function loadScene() {
     // Texturas
     var path = "./images/";
 
-    var texturaSuelo = new THREE.TextureLoader().load(path + 'pisometalico_1024.jpg');
+    var texturaSuelo = new THREE.TextureLoader().load(path + 'wood512.jpg');
     texturaSuelo.magFilter = THREE.LinearFilter;
     texturaSuelo.minFilter = THREE.LinearFilter;
     texturaSuelo.repeat.set(3,3); //Las veces que se repite
@@ -195,13 +207,13 @@ function loadScene() {
     // Geometrias
 
     var geobase = new THREE.CylinderGeometry(50,50,15,50);
-    var geosuelo = new THREE.PlaneGeometry( 1000, 1000, 1,1);
+    var geosuelo = new THREE.PlaneGeometry( 1000, 1000, 50,50);
     var geoesparrago = new THREE.CylinderGeometry(20,20,18,30);
     var geoeje = new THREE.BoxGeometry(18,120,12);
     var georotula = new THREE.SphereGeometry(20,10,30);
     var geodisco = new THREE.CylinderGeometry(22,22,6,40);
     var geonervios = new THREE.BoxGeometry(4,80,4);
-    var geomano = new THREE.CylinderGeometry(15,15,40,30);
+    var geomano = new THREE.CylinderGeometry(15,15,40,40);
 
     var geopinza = new THREE.Geometry();
     geopinza.vertices.push(
@@ -421,7 +433,8 @@ function setupGui()
 }
 
 function update() {
-    
+    renderer.domElement.setAttribute("tabIndex", "0");
+    renderer.domElement.focus();
 }
 
 function updateAspectRatio() {

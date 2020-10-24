@@ -26,7 +26,7 @@ var nowMsec = Date.now();
 init();
 loadScene();
 setupGui();
-keyboardControl();
+//keyboardControl();
 render();
 
 function setCameras(ar) {
@@ -101,6 +101,46 @@ function init() {
 
     // Captura de eventos
     window.addEventListener('resize',updateAspectRatio);
+
+    var keyboard	= new THREEx.KeyboardState(renderer.domElement);
+	  renderer.domElement.setAttribute("tabIndex", "0");
+	  renderer.domElement.focus();
+	
+	  updateFcts.push(function(delta, now){
+      if( keyboard.pressed('left') ){
+          robot.position.z += 1;
+          planta.position.z += 1;			
+      }else if( keyboard.pressed('right') ){
+          robot.position.z -= 1;
+          planta.position.z -= 1;
+      }
+      if( keyboard.pressed('down') ){
+          robot.position.x += 1;
+          planta.position.x += 1;
+      }else if( keyboard.pressed('up') ){
+          robot.position.x -= 1;
+          planta.position.x -= 1;
+      }
+    });
+
+    updateFcts.push(function(){
+      renderer.render( scene, camera );		
+    });
+
+    var lastTimeMsec= null
+	  requestAnimationFrame(function animate(nowMsec){
+      // keep looping
+      requestAnimationFrame( animate );
+      // measure time
+      lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+      var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+      lastTimeMsec	= nowMsec
+      // call each update function
+      updateFcts.forEach(function(updateFn){
+        updateFn(deltaMsec/1000, nowMsec/1000)
+      ;})
+	  });
+
 }
 
 
@@ -317,7 +357,8 @@ function setupGui()
 }
 
 function update() {
-    
+    renderer.domElement.setAttribute("tabIndex", "0");
+    renderer.domElement.focus();
 }
 
 function updateAspectRatio() {
