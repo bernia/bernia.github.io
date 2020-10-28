@@ -93,6 +93,13 @@ function init() {
     document.addEventListener('keydown', function(event) {
         var code = event.keyCode;
         if (code == 67) cambio_camara = 1-cambio_camara;
+        if (code ==82 ) { // Reset
+            cubo.position.set(0,30,0);
+            cubo.__dirtyPosition=true;
+            rot_now = cubo.quaternion;
+            rot_now.multiplyQuaternions(rot_ini,rot_now);
+            cubo.__dirtyRotation=true;
+        }
     });
 
     // Teclado
