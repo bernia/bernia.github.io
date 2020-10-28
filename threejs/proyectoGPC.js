@@ -10,6 +10,7 @@
 var renderer, scene, camera;
 var cambio_camara = 0;
 var rot_ini;
+var reloj;
 
 
 // Fisicas
@@ -24,8 +25,6 @@ var cubo;
 var cameraControls;
 
 // Tiempo
-var clock = new THREE.Clock();
-
 var clock = new THREE.Clock();
 
 // Interaccion teclado
@@ -148,8 +147,8 @@ function init() {
     scene.add( luzAmbiente );
 
     // Farolas
-    for(var x = 0; x < 2700; x = x+500) {
-        var luzFocal = new THREE.SpotLight(0xFFFFFF,0.2);
+    for(var x = 0; x < 2000; x = x+500) {
+        var luzFocal = new THREE.SpotLight(0xFFFFFF,0.3);
         luzFocal.position.set( x,200,0 );
         scene.add(luzFocal.target);
         luzFocal.target.position.set(x,0,0);
@@ -162,7 +161,19 @@ function init() {
         scene.add(luzFocal);
     }
 
-    var luzDireccional = new THREE.DirectionalLight(0xFFFFFF,0.3);
+    var luzFocal = new THREE.SpotLight(0xFFFFFF,0.5);
+        luzFocal.position.set( 2500,200,0 );
+        scene.add(luzFocal.target);
+        luzFocal.target.position.set(2500,0,0);
+        luzFocal.angle = Math.PI/3;
+        luzFocal.shadow.camera.near = 2;
+        luzFocal.shadow.camera.far = 1000;
+        luzFocal.shadow.camera.fov = 42;
+        luzFocal.penumbra = 0.1;
+        luzFocal.castShadow = true;
+        scene.add(luzFocal);
+
+    var luzDireccional = new THREE.DirectionalLight(0xFFFFFF,0.4);
     luzDireccional.position.set(-100,100,0 );
     luzDireccional.castShadow = true;
     scene.add(luzDireccional);
@@ -278,23 +289,23 @@ function loadScene() {
     // Modelos
     
 
-    //modeloCamion = new THREE.Object3D();
-    //var loader = new THREE.ObjectLoader();
+    /*modeloCamion = new THREE.Object3D();
+    var loader = new THREE.ObjectLoader();
     
-    /*loader.load('models/cart/kart.json',
+    loader.load('models/cart/kart.json',
                 function(obj) {
                     obj.scale.set(0.01,0.01,0.01);
                     obj.rotation.y = -Math.PI / 2;
                     modeloCamion.add(obj);
-                });*/
+                });
 
     // Organizacion de la escena
 
     //vehiculo.add(cubo);
-    /*cubo.add(modeloCamion);
+    cubo.add(modeloCamion);
     modeloCamion.position.y = -10;
     modeloCamion.castShadow = true;
-    modeloCamion.receiveShadow = true;*/
+    modeloCamion.receiveShadow = false;*/
 
     cubo.add(camera);
     scene.add(cubo);
@@ -437,7 +448,15 @@ function build_molino() {
     cono2.position.set(825, 50, 50);
     cono3.position.set(925, 50, -50);
     cono4.position.set(1025, 50, 50);
-    
+
+    /*var geoala = new THREE.CylinderGeometry(2,2,150,10);
+    ala1 = new THREE.Mesh(geoala,matcono,0);
+    ala1.position.set(900,100,0);
+    ala1.rotation.z = Math.PI/2;
+    scene.add(ala1);
+
+    var animacion = new TWEEN.Tween( ala1.rotation ).to( {x:2*Math.PI, y:0, z:0}, 1000 ).repeat(Infinity);
+	animacion.start();*/
 
     scene.add(cono1);
     scene.add(cono2);
@@ -561,6 +580,22 @@ function build_tierra() {
     cil3.position.y = 5;
     tierra.add(cil3);
 
+    var geoala = new THREE.CylinderGeometry(2,2,150,10);
+    var ala1 = new THREE.Mesh(geoala,matcil,0);
+    ala1.position.set(2200,50,155);
+    ala1.rotation.y = Math.PI;
+    scene.add(ala1);
+
+    var ala2 = new THREE.Mesh(geoala,matcil,0);
+    ala2.position.set(2200,50,-155);
+    ala2.rotation.y = Math.PI;
+    scene.add(ala2);
+
+    var animacion = new TWEEN.Tween( ala1.rotation ).to( {x:0, y:Math.PI, z: 2*Math.PI}, 1000 ).repeat(Infinity);
+    animacion.start();
+    var animacion2 = new TWEEN.Tween( ala2.rotation ).to( {x:0, y:Math.PI, z: 2*Math.PI}, 1000 ).repeat(Infinity);
+	animacion2.start();
+
     scene.add(suelo);
     scene.add(tierra);
 }
@@ -649,6 +684,8 @@ function update() {
         rot_now.multiplyQuaternions(rot_ini,rot_now);
         cubo.__dirtyRotation=true;
     }
+
+    TWEEN.update();
     // Tiempo
     //var delta = clock.getDelta();
 }

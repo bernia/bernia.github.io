@@ -168,7 +168,8 @@ function loadWorld()
 	molinete.position.copy( discBody.position );
 
 	var giro = new TWEEN.Tween( molinete.rotation ).to( {x:0, y:2*Math.PI, z:0}, 1000 );
-	giro.repeat(Infinity);
+	//giro.repeat(Infinity);
+	giro.chain(giro);
 	giro.start();
 
 	// Suelo
