@@ -12,7 +12,7 @@ var planta;
 // Objetos
 var robot, base, brazo, antebrazo, mano, pinzas, angulo = 0;
 // Variables camara orto
-var l = b = -100;
+var l = b = -500;
 var r = t = -l;
 var cameraControls;
 // Global GUI
@@ -26,22 +26,21 @@ var nowMsec = Date.now();
 init();
 loadScene();
 setupGui();
-//keyboardControl();
 render();
 
 function setCameras(ar) {
     // Construye las camaras Planta, Alzado, Perfil y Perspectiva
     var origen = new THREE.Vector3(0,0,0);
-    var camaraOrtografica = new THREE.OrthographicCamera(l, r, t, b, -100, 350);
+    var camaraOrtografica = new THREE.OrthographicCamera(l, r, t, b, -100, 1000);
 
     // Camaras ortograficas
     planta = camaraOrtografica.clone();
-    planta.position.set(0,300,0);
+    planta.position.set(0,800,0);
     planta.lookAt(origen);
     planta.up.set(new THREE.Vector3(0,0,-1));
 
     // Camara perspectiva
-    camera = new THREE.PerspectiveCamera(50, ar, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(50, ar, 0.1, 2000);
     camera.position.set(175,260,175);
     camera.lookAt(new THREE.Vector3(0,0,0));
 
@@ -50,33 +49,6 @@ function setCameras(ar) {
 
 
 }
-
-function keyboardControl() {
-    document.onkeydown = function(e) {
-      switch (e.keyCode) {
-        // left
-        case 37:
-        robot.position.z += 1;
-        planta.position.z += 1;
-        break;
-        // up
-        case 38:
-        robot.position.x -= 1;
-        planta.position.x -= 1;
-        break;
-        // right
-        case 39:
-        robot.position.z -= 1;
-        planta.position.z -= 1;
-        break;
-        // down
-        case 40:
-        robot.position.x += 1;
-        planta.position.x += 1;
-        break;
-      }
-    };
-  }
 
 function init() {
     // Configurar el motor de render y canvas
@@ -109,17 +81,13 @@ function init() {
 	  updateFcts.push(function(delta, now){
       if( keyboard.pressed('left') ){
           robot.position.z += 1;
-          planta.position.z += 1;			
       }else if( keyboard.pressed('right') ){
           robot.position.z -= 1;
-          planta.position.z -= 1;
       }
       if( keyboard.pressed('down') ){
           robot.position.x += 1;
-          planta.position.x += 1;
       }else if( keyboard.pressed('up') ){
           robot.position.x -= 1;
-          planta.position.x -= 1;
       }
     });
 

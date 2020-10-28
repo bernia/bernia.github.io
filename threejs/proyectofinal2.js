@@ -20,16 +20,17 @@ var vel = 0; // Velocidad del objeto
 var stats;
 
 // Mundo fisico
-var world, reloj, matcuboF, cuboBody;
+var world, reloj, vehiculoF, cuboBody;
 
 // Mundo visual
-var vehiculo= new THREE.Object3D() , cil; // Objeto contenedor de cubo
+var vehiculo= new THREE.Object3D() , cil, esparrago, vehiculoBB;
 
 // Interaccion teclado
 var updateFcts	= [];
 var lastTimeMsec= null
 var nowMsec = Date.now();
 
+setupGui();
 initPhysicWorld();
 initVisualWorld();
 loadWorld();
@@ -57,20 +58,31 @@ function initPhysicWorld()
 	// Mundo 
   	world = new CANNON.World(); 
    	world.gravity.set(0,-9.8,0); 
-   	//world.broadphase = new CANNON.NaiveBroadphase(); 
+    world.broadphase = new CANNON.NaiveBroadphase(); 
+    world.broadphase.useBoundingBoxes = true;   
     world.solver.iterations = 10; 
+
+    // Contacto iman - container
+    var matimanF = new CANNON.Material("matimanF");
+    world.addMaterial( matimanF );
+    var matcontenedorF = new CANNON.Material("matcontenedorF");
+    world.addMaterial( matcontenedorF );
+    var iman_contenedor = new CANNON.ContactMaterial(matimanF, matcontenedorF, { friction: 0.3, 
+                                                                                 restitution: 0.7 });
+    world.addContactMaterial(iman_contenedor);
 
     // Material y comportamiento
     var matsueloF = new CANNON.Material("matsueloF");
-    matcuboF = new CANNON.Material("matcuboF");
+    matvehiculoF = new CANNON.Material("matvehiculoF");
     world.addMaterial( matsueloF );
-    world.addMaterial( matcuboF );
+    world.addMaterial( matvehiculoF );
     // -existe un defaultContactMaterial con valores de restitucion y friccion por defecto
     // -en caso que el material tenga su friccion y restitucion positivas, estas prevalecen 
-    var suelo_cubo = new CANNON.ContactMaterial(matsueloF,matcuboF,
+    var suelo_vehiculo = new CANNON.ContactMaterial(matsueloF,matvehiculoF,
     										    				{ friction: 0.3, 
     										      				  restitution: 0.7 });
-    world.addContactMaterial(suelo_cubo);
+    world.addContactMaterial(suelo_vehiculo);
+
 
     // Suelo
     var sueloShape = new CANNON.Plane();
@@ -99,6 +111,8 @@ function initPhysicWorld()
     rightWall.position.x = 500;
     rightWall.quaternion.setFromEuler(0,-Math.PI/2,0,'XYZ');
     world.addBody( rightWall );
+
+    
 }
 
 /**
@@ -159,11 +173,19 @@ function initVisualWorld()
             //vel = 20;
         }
         // Mover al objeto
-        vehiculo.rotation.y = giro;
-        vehiculo.position.x -= vel * Math.cos(giro) * delta;
-        vehiculo.position.z += vel * Math.sin(giro) * delta;
-        
-        cameraControls.target.set(vehiculo.position.x, 30, vehiculo.position.z);
+        //vehiculo.rotation.y = giro;
+        //vehiculo.position.x -= vel * Math.cos(giro) * delta;
+        //vehiculo.position.z += vel * Math.sin(giro) * delta;
+        //cameraControls.target.set(vehiculo.position.x, 30, vehiculo.position.z);
+        //modeloCamion.getWorldPosition(vehiculoBB.position);
+        //vehiculoBB.position.y = 25;
+        //vehiculoBB.rotation.y = giro;
+        //vehiculoF.position = vehiculoBB.position;
+        //vehiculoF.quaternion.setFromEuler(0, giro, 0);
+        //vehiculoF.position.x -= vel * Math.cos(giro) * delta;
+        //vehiculoF.position.z += vel * Math.sin(giro) * delta;
+        vehiculoF.quaternion.setFromEuler(0,vel * Math.cos(giro) * delta,0,'XYZ');
+        //cameraControls.target.set(vehiculo.position.x, 30, vehiculo.position.z);
     });
 
     // only on keydown
@@ -207,15 +229,25 @@ function loadWorld()
 {   
     // MUNDO FISICO
     // Cubo
-    var cuboShape = new CANNON.Box(new CANNON.Vec3(20, 10, 10));
+    /*var cuboShape = new CANNON.Box(new CANNON.Vec3(20, 10, 10));
     cuboBody = new CANNON.Body({mass:0, material: matcuboF});
     cuboBody.addShape(cuboShape);
     cuboBody.quaternion.setFromEuler( -Math.PI/2,0,0 );
-    world.addBody(cuboBody);
+    world.addBody(cuboBody);*/
+
+    // Vehiculo
+    for( i=0; i<world.materials.length; i++){
+		if( world.materials[i].name === "matsueloF" ) vehiculoF = new CANNON.Body( {mass:1, material:world.materials[i]} );
+	}
     
+    vehiculoF.addShape( new CANNON.Box( new CANNON.Vec3(90, 50, 55) ));
+    world.addBody(vehiculoF);
+    vehiculoF.position.y = 25;
+    //vehiculoF.initVelocity.set(-1, 0, 0);        
 
     // MUNDO VISUAL
     // Materiales
+    var matvehiculoBB = new THREE.MeshBasicMaterial( {color:'red', wireframe: true} );
     var matsuelo = new THREE.MeshBasicMaterial( {color:'grey', wireframe: true} );
     var matbrazo = new THREE.MeshBasicMaterial( {color: "green"} );
     var matcil = new THREE.MeshBasicMaterial( {color: "blue", wireframe: true} );
@@ -231,13 +263,16 @@ function loadWorld()
     var geobrazo = new THREE.BoxGeometry(5,100,3.5);
     var geocil = new THREE.CylinderGeometry(4,4,6,30);
     var georec = new THREE.BoxGeometry(30,8,20);
-    var geoesparrago = new THREE.CylinderGeometry(6,6,8,30);
-    var geocable = new THREE.CylinderGeometry(1,1,30,10);
+    var geoesparrago = new THREE.SphereGeometry(6,30);
+    var geocable = new THREE.CylinderGeometry(1,1,40,10);
     var geoiman = new THREE.CylinderGeometry(5,5,0.5,30);
-
     var geozona = new THREE.PlaneGeometry (300,300,20,20);
+    var geovehiculoBB = new THREE.BoxGeometry(90,50,55);
 
     // Objetos
+    vehiculoBB = new THREE.Mesh( geovehiculoBB, matvehiculoBB);
+    vehiculoBB.position.y = 25;
+
     var suelo = new THREE.Mesh( geosuelo, matsuelo );
     suelo.rotation.x = -Math.PI/2;
 
@@ -272,17 +307,19 @@ function loadWorld()
     rec.position.x = 14;
     rec.rotation.z = Math.PI / 16;
 
-    var esparrago = new THREE.Mesh (geoesparrago, matcil);
+    esparrago = new THREE.Mesh (geoesparrago, matcil);
     esparrago.position.y = 5;
     esparrago.position.x = 0;
     esparrago.rotation.x = Math.PI / 2;
+    //esparrago.rotation.y = -Math.PI / 8;
+
 
     var cable = new THREE.Mesh( geocable, matcable);
     cable.rotation.z = Math.PI / 2;
-    cable.position.x = 15;
+    cable.position.x = 20;
 
     var iman = new THREE.Mesh( geoiman, matiman );
-    iman.position.y = -15;
+    iman.position.y = -20;
     
     var zonaa = new THREE.Mesh( geozona, matzona_a);
     var zonab = new THREE.Mesh( geozona, matzona_b);
@@ -318,21 +355,23 @@ function loadWorld()
                 });*/
     
     vehiculo = new THREE.Object3D();
+    modeloCamion = new THREE.Object3D();
     loader.load('models/camion/mining-dump-truck.json',
                 function(obj) {
                     obj.scale.set(0.2,0.2,0.2);
                     obj.rotation.y = Math.PI / 2;
-                    vehiculo.add(obj)
+                    modeloCamion.add(obj);
+                    vehiculo.add(modeloCamion);
                 });
     
     container_r = new THREE.Object3D();
-    loader.load('models/container/red.json',
+    /*loader.load('models/container/red.json',
                 function(obj) {
-                    obj.scale.set(10,10,10);
+                    obj.scale.set(12,12,12);
                     obj.position.set(-400,0,0);
-                    //obj.rotation.y = Math.PI / 2;
+                    obj.rotation.y = Math.PI / 2;
                     scene.add(obj)
-                });
+                });*/
 
     
     //scene.add(camion);
@@ -352,9 +391,11 @@ function loadWorld()
 
     vehiculo.add(rec);
     vehiculo.add(camera);
-    
-    
+
     scene.add(vehiculo);
+    scene.add(vehiculoBB);
+    //modeloCamion.position.copy(vehiculoF.position);
+    //vehiculoF.position.y = 25;
     scene.add(suelo);
     scene.add(zonaa);
     scene.add(zonab);
@@ -367,13 +408,46 @@ function loadWorld()
 }
 
 /**
+ * Crear la GUI
+ */
+function setupGui()
+{
+	// Definicion de los controles
+	effectController = {
+		giroBrazoY: 0,
+        giroBrazoX: 0,
+        giroIman: 0
+	};
+
+	// Creacion interfaz
+	var gui = new dat.GUI();
+
+	// Construccion del menu
+	var h = gui.addFolder("Control Grua");
+    var s_giroBrazoY = h.add(effectController, "giroBrazoY",-22,0,0.5).name("Giro Brazo Y");
+    var s_giroBrazoX = h.add(effectController, "giroBrazoX",-180,180,1).name("Giro Brazo X");
+    var s_giroIman = h.add(effectController, "giroIman",-230,-120,0.5).name("Giro Iman");
+	
+    s_giroBrazoY.onChange( function(alpha){ esparrago.rotation.y = alpha * Math.PI / 180;});
+    s_giroBrazoX.onChange( function(alpha){ esparrago.rotation.z = alpha * Math.PI / 180; });
+    s_giroIman.onChange( function(alpha){ cil.rotation.y = -alpha * Math.PI / 180;});
+}
+
+/**
+ * Mover Brazo 
+*/
+function moverBrazo(grados) {
+
+}
+
+/**
  * Isotropía frente a redimension del canvas
  */
 function updateAspectRatio()
 {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	camera.aspect = window.innerWidth/window.innerHeight;
-	camera.updateProjectionMatrix();
+    camera.updateProjectionMatrix();
 }
 
 /**
@@ -388,7 +462,8 @@ function update()
     renderer.domElement.setAttribute("tabIndex", "0");
     renderer.domElement.focus();
 
-    //cubo.position.set(cuboBody.position.x,cuboBody.position.y, cubo.position.z );
+    vehiculoF.position.copy( vehiculoBB.position );
+	vehiculoF.quaternion.copy( vehiculoBB.quaternion );
 
 	// Actualiza el monitor 
 	stats.update();

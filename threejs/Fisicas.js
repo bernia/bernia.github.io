@@ -46,7 +46,7 @@ function initPhysicWorld()
 	// Mundo 
   	world = new CANNON.World(); 
    	world.gravity.set(0,-9.8,0); 
-   	///world.broadphase = new CANNON.NaiveBroadphase(); 
+   	world.broadphase = new CANNON.NaiveBroadphase(); 
    	world.solver.iterations = 10; 
 
    	// Material y comportamiento

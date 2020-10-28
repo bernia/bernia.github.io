@@ -12,7 +12,7 @@ var planta;
 
 // Otras globales
 var robot, base, brazo, antebrazo, mano, angulo = 0;
-var l = b = -100;
+var l = b = -500;
 var r = t = -l;
 var cameraControls;
 
@@ -24,16 +24,16 @@ render();
 function setCameras(ar) {
     // Construye las camaras Planta, Alzado, Perfil y Perspectiva
     var origen = new THREE.Vector3(0,0,0);
-    var camaraOrtografica = new THREE.OrthographicCamera(l, r, t, b, -100, 350);
+    var camaraOrtografica = new THREE.OrthographicCamera(l, r, t, b, -100, 1000);
 
     // Camaras ortograficas
     planta = camaraOrtografica.clone();
-    planta.position.set(0,300,0);
+    planta.position.set(0,800,0);
     planta.lookAt(origen);
     planta.up.set(new THREE.Vector3(0,0,-1));
 
     // Camara perspectiva
-    camera = new THREE.PerspectiveCamera(50, ar, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(50, ar, 0.1, 2000);
     camera.position.set(175,260,175);
     camera.lookAt(new THREE.Vector3(0,150,0));
 
