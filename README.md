@@ -1,5 +1,9 @@
-## Uso y alcance de este proyecto
-**Este proyecto tiene fines exclusivamente docentes**   
-El proyecto incluye material extraído del proyecto público [Three.js](http://threjs.org) *r96*, bibliotecas de utilidad del texto *"WebGL Programming Guide" de  Kouichi Matsuda y Rodger Lea* y código propio de *<rvivo@upv.es>*.  
+## Proyecto final GPC
+Este proyecto se basa en un juego de conducción donde tendremos el control de un coche y deberemos llegar al final del circuito
+sin caernos ni volcar. El circuito es de hielo y tiene distintos obstáculos.
 
-Para más información sobre su uso y alcance consultar la [wiki](https://github.com/RobVivo/RobVivo.github.io/wiki/INSTRUCCIONES-B%C3%81SICAS)
+Modo de uso:
+Mover el vehículo: Flecha Arriba, Flecha abajo
+Girar el vehículo: Flecha izquierda, Flecha derecha
+Cambiar cámara: c     (También hay botón en interfaz de usuario) 
+Reiniciar juego: r    (También hay botón en interfaz de usuario) 
