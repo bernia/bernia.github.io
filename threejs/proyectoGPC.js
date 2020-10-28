@@ -239,7 +239,7 @@ function loadScene() {
     
     cubo = new Physijs.BoxMesh( geovehiculoBB, matvehiculoBB, 8);
     cubo.position.y = 30;
-    cubo.position.x =2000;
+    cubo.position.x =0;
 
     cubo.add(antena);
     antena.position.y = 6;
