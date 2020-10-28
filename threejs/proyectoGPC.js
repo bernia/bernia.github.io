@@ -185,6 +185,30 @@ function init() {
     luzDireccional.castShadow = true;
     scene.add(luzDireccional);
 
+    var luzFocalmeta = new THREE.SpotLight(0xFFFFFF,0.4);
+    luzFocal.position.set( 2200,200,300 );
+    scene.add(luzFocal.target);
+    luzFocalmeta.target.position.set(2000,0,0);
+    luzFocalmeta.angle = Math.PI/3;
+    luzFocalmeta.shadow.camera.near = 2;
+    luzFocalmeta.shadow.camera.far = 1000;
+    luzFocalmeta.shadow.camera.fov = 42;
+    luzFocalmeta.penumbra = 0.1;
+    luzFocalmeta.castShadow = true;
+    scene.add(luzFocalmeta);
+
+    var luzFocalr2 = new THREE.SpotLight(0xFFFFFF,0.3);
+    luzFocal.position.set( 1700,200,0 );
+    scene.add(luzFocal.target);
+    luzFocalr2.target.position.set(1700,0,0);
+    luzFocalr2.angle = Math.PI/3;
+    luzFocalr2.shadow.camera.near = 2;
+    luzFocalr2.shadow.camera.far = 1000;
+    luzFocalr2.shadow.camera.fov = 42;
+    luzFocalr2.penumbra = 0.1;
+    luzFocalr2.castShadow = true;
+    scene.add(luzFocalr2);
+
 }
 
 function loadScene() {
@@ -257,12 +281,16 @@ function loadScene() {
     
     cubo = new Physijs.BoxMesh( geovehiculoBB, matvehiculoBB, 8);
     cubo.position.y = 30;
-    cubo.position.x =0;
+    cubo.position.x =2000;
+    cubo.receiveShadow=true;
+    cubo.castShadow=true;
 
     cubo.add(antena);
     antena.position.y = 6;
     antena.position.x = -8;
     antena.position.z = -4;
+    antena.receiveShadow=true;
+    antena.castShadow=true;
 
     cubo.add(eje);
     eje.rotation.x = Math.PI/2;
@@ -289,6 +317,21 @@ function loadScene() {
     cubo.add(r4);
     r4.position.set(-11.25, -2, 9.9);
     r4.rotation.x = Math.PI/2;  
+
+    r1.receiveShadow=true;
+    r1.castShadow=true;
+    r2.receiveShadow=true;
+    r2.castShadow=true;
+    r3.receiveShadow=true;
+    r3.castShadow=true;
+    r4.receiveShadow=true;
+    r4.castShadow=true;
+    eje.receiveShadow=true;
+    eje.castShadow=true;
+    eje2.receiveShadow=true;
+    eje2.castShadow=true;
+    eje3.receiveShadow=true;
+    eje3.castShadow=true;
 
     // Objetos contenedor
     vehiculo = new THREE.Object3D();
@@ -357,6 +400,7 @@ function build_inicio() {
 
     var suelo1 = new Physijs.BoxMesh( geosuelo1, matsuelo1, 0);
     suelo1.rotation.x = -Math.PI/2;
+    suelo1.receiveShadow=true;
 
     scene.add(suelo1);
 }
@@ -438,6 +482,8 @@ function build_molino() {
     var suelo = new Physijs.BoxMesh( geosuelo, matsuelo, 0);
     suelo.rotation.x = -Math.PI/2;
     suelo.position.x = 850;
+    suelo.receiveShadow=true;
+    suelo.castShadow=true;
 
     var geocono = new THREE.ConeGeometry(40, 100, 10, 30);
     var matcono = Physijs.createMaterial(
@@ -464,6 +510,16 @@ function build_molino() {
 
     var animacion = new TWEEN.Tween( ala1.rotation ).to( {x:2*Math.PI, y:0, z:0}, 1000 ).repeat(Infinity);
 	animacion.start();*/
+
+    cono1.receiveShadow=true;
+    cono1.castShadow=true;
+    cono2.receiveShadow=true;
+    cono2.castShadow=true;
+    cono3.receiveShadow=true;
+    cono3.castShadow=true;
+    cono4.receiveShadow=true;
+    cono4.castShadow=true;
+
 
     scene.add(cono1);
     scene.add(cono2);
@@ -541,6 +597,11 @@ function build_ramp() {
     var suelo2R = new Physijs.ConvexMesh( geosuelo2R, matsueloR, 0);
     scene.add(suelo2R);
 
+    sueloR.receiveShadow=true;
+    suelo2R.receiveShadow=true;
+    lava.receiveShadow=true;
+
+
 }
 
 function build_tierra() {
@@ -601,7 +662,20 @@ function build_tierra() {
     var animacion = new TWEEN.Tween( ala1.rotation ).to( {x:0, y:Math.PI, z: 2*Math.PI}, 1000 ).repeat(Infinity);
     animacion.start();
     var animacion2 = new TWEEN.Tween( ala2.rotation ).to( {x:0, y:Math.PI, z: 2*Math.PI}, 1000 ).repeat(Infinity);
-	animacion2.start();
+    animacion2.start();
+    
+    suelo.receiveShadow=true;
+    cil1.receiveShadow=true;
+    cil1.castShadow=true;
+    cil2.receiveShadow=true;
+    cil2.castShadow=true;
+    cil3.receiveShadow=true;
+    cil3.castShadow=true;
+    ala1.receiveShadow=true;
+    ala1.castShadow=true;
+    ala2.receiveShadow=true;
+    ala2.castShadow=true;
+    tierra.receiveShadow=true;
 
     scene.add(suelo);
     scene.add(tierra);
@@ -639,6 +713,14 @@ function build_meta() {
     scene.add(paredlat2);
     scene.add(paredfrontal);
     scene.add(suelo);
+
+    suelo.receiveShadow=true;
+    paredlat1.receiveShadow=true;
+    paredlat1.castShadow=true;
+    paredlat2.receiveShadow=true;
+    paredlat2.castShadow=true;
+    paredfrontal.receiveShadow=true;
+    paredfrontal.castShadow=true;
 }
 
 function setupGui()
